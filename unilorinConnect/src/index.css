@@ -1,0 +1,104 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 195 100% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 196 76% 49%; /* Our main blue */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 195 76% 90%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 196 76% 95%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 196 76% 49%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 196 76% 15%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 196 76% 49%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 196 20% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 196 20% 25%;
+    --sidebar-ring: 196 76% 49%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Page transition animations */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Form transition animations */
+.form-transition-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.form-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0%);
+  transition: opacity 500ms, transform 500ms;
+}
+
+.form-transition-exit {
+  opacity: 1;
+  transform: translateX(0%);
+}
+
+.form-transition-exit-active {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: opacity 500ms, transform 500ms;
+}
