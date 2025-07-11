@@ -9,13 +9,13 @@ const MarketplaceItem = ({ item, onContactSeller }) => {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <img 
-        src={item.image} 
-        alt={item.title} 
+        src={item?.itemImage} 
+        alt={item?.Title} 
         className="h-48 w-full object-cover"
       />
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg line-clamp-1">{item.title}</h3>
+          <h3 className="font-semibold text-lg line-clamp-1">{item.Title}</h3>
           <Badge variant="outline" className="bg-uniblue-50 text-uniblue-700 border-uniblue-200">
             {item.condition}
           </Badge>
@@ -25,7 +25,7 @@ const MarketplaceItem = ({ item, onContactSeller }) => {
         
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-500">
-            Posted by {item.seller.name}
+            Posted by {item.posterInformation.fullName}
           </span>
           <Button 
             variant="outline" 

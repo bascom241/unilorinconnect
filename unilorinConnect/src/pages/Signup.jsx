@@ -1,69 +1,67 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'react-hot-toast';
 import { CSSTransition } from 'react-transition-group';
+import { authStore } from '../store/useAuthStore';
 
 const Signup = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [matric, setMatric] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [userData, setUserData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    matricNumber: '',
+  });
+
   const [loading, setLoading] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const { signup } = useAuth();
   const navigate = useNavigate();
+  const { register } = authStore();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    const { fullName, email, password, confirmPassword, matricNumber } = userData;
+
     // Basic validation
-    if (!name || !email || !password || !confirmPassword) {
-      toast({
-        title: 'Error',
-        description: 'Please fill in all fields',
-        variant: 'destructive',
-      });
+    if (!fullName || !email || !password || !confirmPassword) {
+      toast.error('Please fill in all required fields');
       return;
     }
-    
+
     if (password !== confirmPassword) {
-      toast({
-        title: 'Error',
-        description: 'Passwords do not match',
-        variant: 'destructive',
-      });
+      toast.error('Passwords do not match');
       return;
     }
-    
-    // Email validation for university domain
+
     if (!email.endsWith('@students.unilorin.edu.ng')) {
-      toast({
-        title: 'Invalid Email',
-        description: 'Please use your university email address',
-        variant: 'destructive',
-      });
+      toast.error('Please use your university email address');
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      await signup(name, email, password, matric);
-      navigate('/dashboard');
+      const success = await register({ fullName, email, password, confirmPassword, matricNumber });
+      if (success) {
+        navigate("/verify-email");
+      }
     } catch (error) {
-      toast({
-        title: 'Signup failed',
-        description: error.message,
-        variant: 'destructive',
-      });
+      console.error('Signup error:', error);
+      toast.error('Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -97,62 +95,67 @@ const Signup = () => {
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="fullName">Full Name</Label>
                 <Input
-                  id="name"
+                  id="fullName"
+                  name="fullName"
                   placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={userData.fullName}
+                  onChange={handleChange}
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email">University Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
-                  placeholder="your.email@edu.ui.ng"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your.email@students.unilorin.edu.ng"
+                  value={userData.email}
+                  onChange={handleChange}
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="matric">Matric Number (Optional)</Label>
+                <Label htmlFor="matricNumber">Matric Number (Optional)</Label>
                 <Input
-                  id="matric"
+                  id="matricNumber"
+                  name="matricNumber"
                   placeholder="19/56AB123"
-                  value={matric}
-                  onChange={(e) => setMatric(e.target.value)}
+                  value={userData.matricNumber}
+                  onChange={handleChange}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={userData.password}
+                  onChange={handleChange}
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
+                  name="confirmPassword"
                   type="password"
                   placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={userData.confirmPassword}
+                  onChange={handleChange}
                   required
                 />
               </div>
-              
+
               <Button 
                 type="submit" 
                 className="w-full bg-uniblue-500 hover:bg-uniblue-600" 

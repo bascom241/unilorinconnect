@@ -1,7 +1,5 @@
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,18 +7,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ArrowRight } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { CSSTransition } from 'react-transition-group';
+import { useRoutes } from 'react-router-dom';
+// Import authStore directly
+import { authStore } from '@/store/useAuthStore';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
+
+ 
+  // Access login function from authStore
+  const { login } = authStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       toast({
         title: 'Error',
@@ -29,16 +33,22 @@ const Login = () => {
       });
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      // Call login from authStore
+      await login({ email, password }, navigate);
+      // navigate('/dashboard');
+      toast({
+        title: 'Login successful!',
+        variant: 'default',
+      });
     } catch (error) {
+      console.error(error);
       toast({
         title: 'Login failed',
-        description: error.message,
+        description: 'Invalid email or password',
         variant: 'destructive',
       });
     } finally {
@@ -87,8 +97,8 @@ const Login = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link 
-                    to="#" 
+                  <Link
+                    to="#"
                     className="text-sm text-uniblue-500 hover:text-uniblue-600 hover:underline"
                   >
                     Forgot password?
@@ -103,9 +113,9 @@ const Login = () => {
                   required
                 />
               </div>
-              <Button 
-                type="submit" 
-                className="w-full bg-uniblue-500 hover:bg-uniblue-600" 
+              <Button
+                type="submit"
+                className="w-full bg-uniblue-500 hover:bg-uniblue-600"
                 disabled={loading}
               >
                 {loading ? 'Signing in...' : 'Sign in'}
@@ -115,8 +125,8 @@ const Login = () => {
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center text-sm">
               Don't have an account?{' '}
-              <Button 
-                variant="link" 
+              <Button
+                variant="link"
                 className="p-0 text-uniblue-500 hover:text-uniblue-600"
                 onClick={handleShowSignup}
               >

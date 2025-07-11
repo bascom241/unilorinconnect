@@ -21,10 +21,12 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-
+import { authStore } from '../store/useAuthStore';
 const Sidebar = () => {
   const [expanded, setExpanded] = useState(true);
-  const { currentUser, logout } = useAuth();
+ 
+
+  const {user, logout } = authStore();
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,8 +41,8 @@ const Sidebar = () => {
   };
   
   const handleLogout = async () => {
-    await logout();
-    navigate('/');
+    await logout(navigate);
+    // navigate('/');
   };
   
   const menuItems = [
@@ -76,22 +78,22 @@ const Sidebar = () => {
         </Button>
       </div>
 
-      {currentUser && (
+      {user && (
         <div className={cn(
           "flex items-center p-4 border-b border-sidebar-border",
           expanded ? "justify-start" : "justify-center"
         )}>
           <Avatar className="h-10 w-10">
-            <AvatarImage src={currentUser.profilePic} />
+            {/* <AvatarImage src={currentUser.profilePic} /> */}
             <AvatarFallback className="bg-primary text-white">
-              {getInitials(currentUser.name)}
+              {getInitials(user.fullName)}
             </AvatarFallback>
           </Avatar>
           
           {expanded && (
             <div className="ml-3 overflow-hidden">
-              <p className="text-sm font-medium text-white truncate">{currentUser.name}</p>
-              <p className="text-xs text-gray-300 truncate">{currentUser.matric || currentUser.email}</p>
+              <p className="text-sm font-medium text-white truncate">{user.fullName}</p>
+              <p className="text-xs text-gray-300 truncate">{user.matricNumber || user.email}</p>
             </div>
           )}
         </div>
@@ -146,7 +148,7 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      {currentUser && (
+      {user && (
         <div className="p-4 border-t border-sidebar-border">
           <Button 
             variant="ghost" 

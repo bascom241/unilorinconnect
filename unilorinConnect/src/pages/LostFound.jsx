@@ -1,25 +1,25 @@
-
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Search, Plus, MapPin, Calendar, Check, X, MessageSquare } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
+import { Plus, MapPin, Calendar, MessageSquare } from 'lucide-react';
+import { authStore } from '../store/useAuthStore';
+import { useLostAndFound } from '../store/useLostAndFound';
 
 const LostFound = () => {
-  const { currentUser } = useAuth();
+  const { user } = authStore();
+  const currentUser = user?.user || {};
+  const { lostAndFoundItems, fetchLostAndFoundItems, createLostAndFoundItem, creatingLostAndFoundItem, loadingLostAndFoundItems, getMyLostAndFoundItems } = useLostAndFound();
   const { addNotification } = useNotifications();
-  const [items, setItems] = useState([]);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
@@ -27,153 +27,72 @@ const LostFound = () => {
     title: '',
     description: '',
     location: '',
-    category: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
-    type: 'lost',
-    image: '', // Image field
-    contact: currentUser?.phone || ''
+    contactInfo: currentUser?.email || '', // Use email
+    image: null
   });
-  
-  // Load items from localStorage on mount
+
   useEffect(() => {
-    const storedItems = JSON.parse(localStorage.getItem('lostFoundItems') || '[]');
-    setItems(storedItems);
-  }, []);
-  
-  const handleSaveItem = () => {
-    if (!newItem.title || !newItem.location || !newItem.type) {
-      toast({
-        title: 'Error',
-        description: 'Please fill in all required fields',
-        variant: 'destructive'
-      });
+    if (activeTab === 'mine') {
+      getMyLostAndFoundItems();
+    } else {
+      fetchLostAndFoundItems();
+    }
+  }, [activeTab, fetchLostAndFoundItems, getMyLostAndFoundItems]);
+
+
+  const handleSubmit = async () => {
+    const { title, description, location, contactInfo, image } = newItem;
+
+    if (!title || !description || !location || !contactInfo || !image) {
+      toast({ title: 'Missing Fields', description: 'Please fill in all fields', variant: 'destructive' });
       return;
     }
-    
-    const itemToSave = {
-      ...newItem,
-      id: `item-${Date.now()}`,
-      reporterId: currentUser.id,
-      reporterName: currentUser.name,
-      reporterEmail: currentUser.email,
-      status: 'open',
-      createdAt: new Date().toISOString()
-    };
-    
-    // Add to state and localStorage
-    const updatedItems = [itemToSave, ...items];
-    setItems(updatedItems);
-    localStorage.setItem('lostFoundItems', JSON.stringify(updatedItems));
-    
-    // Reset form and close dialog
-    setNewItem({
-      title: '',
-      description: '',
-      location: '',
-      category: '',
-      date: format(new Date(), 'yyyy-MM-dd'),
-      type: 'lost',
-      image: '', // Reset image field
-      contact: currentUser?.phone || ''
-    });
-    
-    setIsDialogOpen(false);
-    
-    // Add notification for demo purposes
-    addNotification({
-      title: `${itemToSave.type === 'lost' ? 'Lost' : 'Found'} item reported`,
-      message: `Your ${itemToSave.type === 'lost' ? 'lost' : 'found'} item report for "${itemToSave.title}" has been published`,
-      type: 'info'
-    });
-    
-    toast({
-      title: 'Report submitted',
-      description: `Your ${itemToSave.type === 'lost' ? 'lost' : 'found'} item has been reported successfully`
-    });
-  };
-  
-  const handleStatusChange = (itemId, newStatus) => {
-    setItems(prevItems => {
-      const updatedItems = prevItems.map(item => {
-        if (item.id === itemId) {
-          return {
-            ...item,
-            status: newStatus,
-            resolvedAt: newStatus === 'resolved' ? new Date().toISOString() : null
-          };
-        }
-        return item;
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('location', location);
+    formData.append('contactInfo', contactInfo);
+    formData.append('image', image);
+
+    try {
+      await createLostAndFoundItem(formData);
+      toast({ title: 'Item Reported', description: 'Your lost/found item has been submitted.' });
+      addNotification({
+        title: 'Item Reported',
+        message: `"${title}" was successfully added to the Lost & Found list.`,
+        type: 'info'
       });
-      
-      localStorage.setItem('lostFoundItems', JSON.stringify(updatedItems));
-      return updatedItems;
-    });
-    
-    toast({
-      title: 'Status updated',
-      description: `Item status has been updated to ${newStatus}`
-    });
-  };
-  
-  const handleContactReporter = (item) => {
-    // In a real app, this would navigate to chat with the reporter
-    // For now, just show a toast
-    toast({
-      title: 'Contact initiated',
-      description: `A message has been sent to ${item.reporterName} about "${item.title}"`
-    });
-  };
-  
-  // Handle image upload
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewItem(prevState => ({ ...prevState, image: reader.result }));
-      };
-      reader.readAsDataURL(file); // Converts image to base64
+      setIsDialogOpen(false);
+      setNewItem({
+        title: '',
+        description: '',
+        location: '',
+        contactInfo: currentUser?.email || '',
+        image: null
+      });
+
+    } catch (error) {
+      toast({ title: 'Error', description: 'Could not report item', variant: 'destructive' });
     }
   };
 
-  // Filter items based on search term and active tab
-  const filteredItems = items.filter(item => {
-    const matchesSearch = 
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredItems = lostAndFoundItems?.filter((item) => {
+    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesTab = 
-      activeTab === 'all' || 
-      (activeTab === 'lost' && item.type === 'lost') ||
-      (activeTab === 'found' && item.type === 'found') ||
-      (activeTab === 'mine' && item.reporterId === currentUser.id);
-    
+
+    const matchesTab = activeTab === 'all' ||
+      (activeTab === 'mine' && item.posterInformation?._id === currentUser._id);
+
     return matchesSearch && matchesTab;
   });
-  
-  // Sort items by date (most recent first)
-  const sortedItems = [...filteredItems].sort((a, b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
-  
-  // Predefined options for dropdowns
-  const categoryOptions = [
-    'Electronics',
-    'ID/Cards',
-    'Keys',
-    'Bag/Backpack',
-    'Books/Notes',
-    'Clothing',
-    'Jewelry',
-    'Other'
-  ];
-  
+
   const getInitials = (name) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
@@ -181,7 +100,7 @@ const LostFound = () => {
           <h1 className="text-3xl font-bold text-gray-900">Lost & Found</h1>
           <p className="text-gray-600 mt-1">Report lost items or help return found items to their owners</p>
         </div>
-        
+
         <Button
           className="mt-4 md:mt-0 bg-uniblue-500 hover:bg-uniblue-600 flex items-center text-white"
           onClick={() => setIsDialogOpen(true)}
@@ -190,301 +109,112 @@ const LostFound = () => {
           Report Item
         </Button>
       </div>
-      
-      {/* Tabs */}
+
+      <Input
+        placeholder="Search items..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4"
+      />
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid grid-cols-4 w-full max-w-md">
+        <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="lost">Lost</TabsTrigger>
-          <TabsTrigger value="found">Found</TabsTrigger>
           <TabsTrigger value="mine">My Reports</TabsTrigger>
         </TabsList>
       </Tabs>
-      
-      {/* Search */}
-      <div className="relative mb-8">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        <Input
-          placeholder="Search items, locations..."
-          className="pl-10"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      
-      {/* Items */}
-      {sortedItems.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedItems.map((item) => (
-            <Card key={item.id} className={`overflow-hidden hover:shadow-lg transition-shadow ${
-              item.status === 'resolved' ? 'bg-gray-50 opacity-75' : ''
-            }`}>
-              <CardContent className="p-0">
-                {item.image && (
-                  <div className="h-48 overflow-hidden">
-                    <img 
-                      src={item.image} 
-                      alt={item.title} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg">{item.title}</h3>
-                    <Badge className={`${
-                      item.type === 'lost' 
-                        ? 'bg-red-100 text-red-800 border-red-200' 
-                        : 'bg-green-100 text-green-800 border-green-200'
-                    }`}>
-                      {item.type === 'lost' ? 'Lost' : 'Found'}
-                    </Badge>
-                  </div>
-                  
-                  {item.status === 'resolved' && (
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-200 mb-2">
-                      Resolved
-                    </Badge>
-                  )}
-                  
-                  <p className="text-gray-600 text-sm mb-4">
-                    {item.description || `No additional details provided for this ${item.type} item.`}
-                  </p>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <MapPin className="h-4 w-4 mr-2 text-uniblue-500" />
-                      <span>{item.location}</span>
-                    </div>
-                    
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Calendar className="h-4 w-4 mr-2 text-uniblue-500" />
-                      <span>
-                        {item.date ? format(new Date(item.date), 'PP') : format(new Date(item.createdAt), 'PP')}
-                      </span>
-                    </div>
-                    
-                    {item.category && (
-                      <Badge variant="outline" className="bg-gray-50">
-                        {item.category}
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <div className="flex items-center">
-                      <Avatar className="h-8 w-8 mr-2">
-                        <AvatarFallback className="bg-uniblue-200 text-uniblue-700">
-                          {getInitials(item.reporterName)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">{item.reporterName}</p>
-                        <p className="text-xs text-gray-500">
-                          {format(new Date(item.createdAt), 'PP')}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {item.reporterId !== currentUser.id && item.status !== 'resolved' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-uniblue-500 border-uniblue-200"
-                        onClick={() => handleContactReporter(item)}
-                      >
-                        <MessageSquare className="h-4 w-4 mr-1" /> Contact
-                      </Button>
-                    )}
-                    
-                    {item.reporterId === currentUser.id && item.status !== 'resolved' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-green-500 border-green-200"
-                        onClick={() => handleStatusChange(item.id, 'resolved')}
-                      >
-                        <Check className="h-4 w-4 mr-1" /> Mark Resolved
-                      </Button>
-                    )}
-                    
-                    {item.reporterId === currentUser.id && item.status === 'resolved' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-gray-500 border-gray-200"
-                        onClick={() => handleStatusChange(item.id, 'open')}
-                      >
-                        <X className="h-4 w-4 mr-1" /> Reopen
-                      </Button>
-                    )}
-                  </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredItems.map(item => (
+          <Card key={item._id}>
+            <CardContent className="p-4">
+              <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover rounded mb-4" />
+              <h2 className="text-xl font-semibold">{item.title}</h2>
+              <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <MapPin size={14} />
+                {item.location}
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <Calendar size={14} />
+                {format(new Date(item.createdAt), 'PPP')}
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                <MessageSquare size={14} />
+                {item.contactInfo}
+              </div>
+              {item.posterInformation && (
+                <div className="flex items-center mt-2">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={item.posterInformation.image} />
+                    <AvatarFallback>{getInitials(item.posterInformation.fullName)}</AvatarFallback>
+                  </Avatar>
+                  <span className="ml-2 text-sm text-gray-700">{item.posterInformation.fullName}</span>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12 border rounded-lg bg-gray-50">
-          <MapPin className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-lg text-gray-500">No items found</p>
-          <p className="text-gray-500 mt-2">
-            {activeTab === 'all' 
-              ? "There are currently no lost or found items reported." 
-              : activeTab === 'mine' 
-                ? "You haven't reported any items yet." 
-                : `There are no ${activeTab} items reported at the moment.`}
-          </p>
-          <Button 
-            className="mt-6 bg-uniblue-500 hover:bg-uniblue-600 flex items-center text-white"
-            onClick={() => setIsDialogOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Report an Item
-          </Button>
-        </div>
-      )}
-      
-      {/* Report Item Dialog */}
-      {isDialogOpen && (
-  <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
-    <div className="sm:max-w-[550px] bg-white p-6 rounded-lg shadow-lg">
-      <div>
-        <div>Report Lost or Found Item</div>
-        <div>Provide details about the lost or found item to help with recovery.</div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
-      
-      {/* The form to report the item */}
-      <div className="grid gap-4 py-4">
-        {/* Radio buttons for Lost/Found */}
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="type" className="text-right">
-            Report Type *
-          </Label>
-          <div className="col-span-3 flex space-x-4">
-            <Label htmlFor="lost" className={`flex items-center p-3 border rounded-md cursor-pointer ${newItem.type === 'lost' ? 'bg-red-50 border-red-200' : ''}`}>
-              <input
-                type="radio"
-                id="lost"
-                name="type"
-                className="sr-only"
-                checked={newItem.type === 'lost'}
-                onChange={() => setNewItem({...newItem, type: 'lost'})}
-              />
-              <span className={`mr-2 h-4 w-4 rounded-full border ${newItem.type === 'lost' ? 'bg-red-500 border-red-500' : 'border-gray-300'}`}>
-                {newItem.type === 'lost' && (
-                  <span className="flex items-center justify-center h-full w-full">
-                    <span className="h-2 w-2 rounded-full bg-white" />
-                  </span>
-                )}
-              </span>
-              <span>I lost an item</span>
-            </Label>
 
-            <Label htmlFor="found" className={`flex items-center p-3 border rounded-md cursor-pointer ${newItem.type === 'found' ? 'bg-green-50 border-green-200' : ''}`}>
-              <input
-                type="radio"
-                id="found"
-                name="type"
-                className="sr-only"
-                checked={newItem.type === 'found'}
-                onChange={() => setNewItem({...newItem, type: 'found'})}
-              />
-              <span className={`mr-2 h-4 w-4 rounded-full border ${newItem.type === 'found' ? 'bg-green-500 border-green-500' : 'border-gray-300'}`}>
-                {newItem.type === 'found' && (
-                  <span className="flex items-center justify-center h-full w-full">
-                    <span className="h-2 w-2 rounded-full bg-white" />
-                  </span>
-                )}
-              </span>
-              <span>I found an item</span>
-            </Label>
-          </div>
-        </div>
+      {isDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Report Lost/Found Item</h2>
+              <button onClick={() => setIsDialogOpen(false)} className="text-gray-500 hover:text-red-600 text-lg font-bold">&times;</button>
+            </div>
 
-        {/* Other form fields */}
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="title" className="text-right">Item Name *</Label>
-          <Input
-            id="title"
-            placeholder="e.g., Blue Laptop Bag"
-            className="col-span-3"
-            value={newItem.title}
-            onChange={(e) => setNewItem({...newItem, title: e.target.value})}
-          />
-        </div>
-        {/* Dropdown for Category */}
-<div className="grid grid-cols-4 items-center gap-4">
-  <Label htmlFor="category" className="text-right">Category *</Label>
-  <select
-    id="category"
-    className="col-span-3"
-    value={newItem.category}
-    onChange={(e) => setNewItem({...newItem, category: e.target.value})}
-  >
-    <option value="">Select Category</option>
-    {categoryOptions.map((option) => (
-      <option key={option} value={option}>
-        {option}
-      </option>
-    ))}
-  </select>
-</div>
-
-<div className="grid grid-cols-4 items-center gap-4">
-  <Label htmlFor="description" className="text-right">Description *</Label>
-  <Input
-    id="description"
-    placeholder="e.g., A bag for carrying laptops and accessories"
-    className="col-span-3"
-    value={newItem.description}
-    onChange={(e) => setNewItem({...newItem, description: e.target.value})}
-  />
-</div>
-
-<div className="grid grid-cols-4 items-center gap-4">
-  <Label htmlFor="location" className="text-right">Location *</Label>
-  <Input
-    id="location"
-    placeholder="e.g., New York"
-    className="col-span-3"
-    value={newItem.location}
-    onChange={(e) => setNewItem({...newItem, location: e.target.value})}
-  />
-</div>
-        {/* Repeat similar structures for other fields like description, category, location, etc. */}
-         {/* Image Upload */}
-         <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="image" className="text-right">Upload Image</Label>
-                <input
-                  type="file"
-                  id="image"
-                  accept="image/*"
-                  className="col-span-3"
-                  onChange={handleImageUpload}
+            <div className="space-y-4">
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={newItem.title}
+                  onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
                 />
               </div>
-              {/* {newItem.image && (
-                <div className="col-span-4 mt-4">
-                  <img src={newItem.image} alt="Uploaded Item" className="w-full h-48 object-cover" />
-                </div>
-              )} */}
-      </div>
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  value={newItem.description}
+                  onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Location</Label>
+                <Input
+                  value={newItem.location}
+                  onChange={(e) => setNewItem({ ...newItem, location: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Contact Info</Label>
+                <Input
+                  value={newItem.contactInfo}
+                  readOnly
+                  className="bg-gray-100 cursor-not-allowed"
+                  onChange={(e) => setNewItem({ ...newItem, contactInfo: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Image</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setNewItem({ ...newItem, image: e.target.files[0] })}
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleSubmit}>
+                  {creatingLostAndFoundItem ? "Creating..." : "Submit"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-     
-      {/* Buttons */}
-      <div>
-        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-        <Button onClick={handleSaveItem} className={newItem.type === 'lost' ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"}>
-          Submit Report
-        </Button>
-      </div>
-    </div>
-  </div>
-)}
-
-      {/* End of Report Item Dialog */}
     </div>
   );
 };

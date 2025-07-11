@@ -4,21 +4,22 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import Sidebar from '@/components/Sidebar';
 import { cn } from '@/lib/utils';
-
+import { authStore } from '../store/useAuthStore';
 const Layout = () => {
-  const { currentUser } = useAuth();
+
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-  
+   const {user} = authStore();
   // Protected route logic
   useEffect(() => {
     const publicRoutes = ['/', '/login', '/signup'];
-    
-    if (!currentUser && !publicRoutes.includes(location.pathname)) {
+   
+    console.log(user)
+    if (!user && !publicRoutes.includes(location.pathname)) {
       navigate('/login');
     }
-  }, [currentUser, location.pathname, navigate]);
+  }, [user, location.pathname, navigate]);
   
   // Listen for sidebar expand/collapse
   useEffect(() => {
@@ -38,7 +39,7 @@ const Layout = () => {
   
   // Check if the current route should show sidebar
   const shouldShowSidebar = () => {
-    const routesWithoutSidebar = ['/', '/login', '/signup'];
+    const routesWithoutSidebar = ['/', '/login', '/signup', "/verify-email"];
     return !routesWithoutSidebar.includes(location.pathname);
   };
   
