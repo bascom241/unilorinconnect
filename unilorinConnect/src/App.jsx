@@ -32,26 +32,23 @@ const App = () => {
     checkAuth();
   }, [checkAuth]);
 
-  useEffect(() => {
-    if (!checkingAuth && !user) {
-      navigate("/login");
-    }
-  }, [checkingAuth, user, navigate]);
+  // useEffect(() => {
+  //   if (!checkingAuth && !user) {
+  //     navigate("/login");
+  //   }
+  // }, [checkingAuth, user, navigate]);
 
 
   
-  // if (checkingAuth) {
-  //   return (
-  //     <div className="h-screen flex justify-center items-center">
-
-  //       <Loader className="animate-spin w-8 h-8 text-uniblue-500" />
-  //     </div>
-  //   );
-  // }
-
-  if(!user){
-    navigate("/login")
+  if (!checkingAuth) {
+    return (
+     navigate("/login")
+    );
   }
+
+  // if(!user){
+  //   navigate("/login")
+  // }
 
   return (
     <TooltipProvider>
