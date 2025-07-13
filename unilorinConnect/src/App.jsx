@@ -20,7 +20,7 @@ import Notifications from "@/pages/Notifications";
 import Profile from "@/pages/Profile";
 import LostFound from "@/pages/LostFound";
 import NotFound from "@/pages/NotFound";
-import { verifyEmail } from "@/pages/verifyEmail";
+import VerifyUser from "./pages/VerifyUser";
 // Auth store
 import { authStore } from "./store/useAuthStore";
 
@@ -70,7 +70,7 @@ const App = () => {
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/lost-found" element={<LostFound />} />
-            <Route path="/verify-email" element={<verifyEmail/>} />
+            <Route path="/verify-email" element={<VerifyUser/>} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

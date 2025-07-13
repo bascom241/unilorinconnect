@@ -6,7 +6,7 @@ import { Loader } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
-const verifyEmail = () => {
+const VerifyUser = () => {
 
     const {  verifyEmail, verifyingEmail} = authStore()
     const [otp, setOtp] = useState(new Array(6).fill(""));
@@ -114,4 +114,4 @@ const navigate = useNavigate();
   )
 }
 
-export default verifyEmail
+export default VerifyUser
