@@ -13,7 +13,7 @@ import lostAndFoundRouter from './routes/useLostAndFound.js';
 dotenv.config();
 app.use(cors(
     {
-        origin: ["http://localhost:8080", "https://unilorinconnectserver.onrender.com],
+        origin: ["http://localhost:8080", "https://unilorinconnectserver.onrender.com"],
         credentials: true, // Allow credentials (cookies) to be sent
     }
 ));
