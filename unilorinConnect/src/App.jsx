@@ -40,14 +40,14 @@ const App = () => {
 
 
   
-  if (checkingAuth) {
-    return (
-      <div className="h-screen flex justify-center items-center">
+  // if (checkingAuth) {
+  //   return (
+  //     <div className="h-screen flex justify-center items-center">
 
-        <Loader className="animate-spin w-8 h-8 text-uniblue-500" />
-      </div>
-    );
-  }
+  //       <Loader className="animate-spin w-8 h-8 text-uniblue-500" />
+  //     </div>
+  //   );
+  // }
 
   if(!user){
     navigate("/login")
