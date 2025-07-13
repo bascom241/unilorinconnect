@@ -20,8 +20,7 @@ import Notifications from "@/pages/Notifications";
 import Profile from "@/pages/Profile";
 import LostFound from "@/pages/LostFound";
 import NotFound from "@/pages/NotFound";
-import VerifyEmail from "@/pages/VerifyEmail"
-
+import VerifyEmail from "./pages/verifyEmail";
 // Auth store
 import { authStore } from "./store/useAuthStore";
 
