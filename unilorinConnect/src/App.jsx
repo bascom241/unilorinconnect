@@ -27,28 +27,25 @@ import { authStore } from "./store/useAuthStore";
 const App = () => {
   const { checkAuth, checkingAuth, user } = authStore();
   const navigate = useNavigate();
+  
+useEffect(() => {
+  checkAuth();
+}, [checkAuth]);
 
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  // useEffect(() => {
-  //   if (!checkingAuth && !user) {
-  //     navigate("/login");
-  //   }
-  // }, [checkingAuth, user, navigate]);
-
-
-
-  if (!checkingAuth) {
-
-    navigate("/login")
-    return
+useEffect(() => {
+  if (!checkingAuth && !user) {
+    navigate("/login");
   }
+}, [checkingAuth, user, navigate]);
 
-  // if(!user){
-  //   navigate("/login")
-  // }
+if (checkingAuth) {
+  return (
+    <div className="w-full h-screen flex justify-center items-center">
+      <Loader className="animate-spin w-6 h-6" />
+    </div>
+  );
+}
+
 
   return (
     <TooltipProvider>
