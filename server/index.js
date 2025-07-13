@@ -6,10 +6,11 @@ import marketRouter from './routes/useMarket.js';
 import eventRouter from "./routes/userEventRouter.js"
 import useMessageRouter from "./routes/useMessageRouter.js"
 import { connectDB } from './utils/connectDb.js';
-import cookieParser from 'cookie-parser';
+// import cookieParser from 'cookie-parser';
 import { io, server ,app } from './lib/socket.js';
 import useResourcesRouter from './routes/useResources.js';
 import lostAndFoundRouter from './routes/useLostAndFound.js';
+import cookieParser from 'cookie-parser';
 dotenv.config();
 app.use(cors(
     {
