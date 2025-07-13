@@ -347,7 +347,7 @@ const Dashboard = () => {
 
         {/* Stats Overview */}
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -422,7 +422,7 @@ const Dashboard = () => {
 
         {/* Quick Access */}
         <motion.div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"

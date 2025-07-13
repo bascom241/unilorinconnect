@@ -333,7 +333,7 @@ const filteredEvents = events.filter(event => {
 
         {/* Stats Overview */}
         <motion.div 
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -379,7 +379,7 @@ const filteredEvents = events.filter(event => {
             </CardHeader>
             <CardContent>
               <motion.div 
-                className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+                className="grid grid-cols-1 sm:grid-cols-4 gap-4"
                 variants={containerVariants}
               >
                 {featuredCategories.map((cat, index) => (
@@ -412,7 +412,7 @@ const filteredEvents = events.filter(event => {
 
         {/* Filters */}
         <motion.div 
-          className="flex flex-col sm:flex-row gap-4 mb-6"
+          className="flex flex-col sm:flex-col gap-4 mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -467,7 +467,7 @@ const filteredEvents = events.filter(event => {
         {/* Events List */}
         {fetchingEvents ? (
           <motion.div 
-            className="flex justify-center items-center py-12"
+            className="sm:flex justify-center flex-col  items-center py-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -515,7 +515,7 @@ const filteredEvents = events.filter(event => {
                     </CardHeader>
                     <CardContent className="pb-4">
                       <p className="text-gray-300 mb-4">{event.Description}</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex items-center text-gray-300">
                           <Calendar className="h-5 w-5 mr-2 text-blue-400" />
                           <span>{format(eventDate, "EEEE, MMMM d, yyyy")}</span>
@@ -662,7 +662,7 @@ const filteredEvents = events.filter(event => {
                     onChange={(e) => setNewEvent({...newEvent, Time: e.target.value})}
                   />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
                   <Label htmlFor="location" className="text-right">Location *</Label>
                   <Input
                     id="location"

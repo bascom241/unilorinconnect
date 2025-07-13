@@ -18,10 +18,7 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator: function (email) {
         if (!email.endsWith("@students.unilorin.edu.ng")) return false;
-        const [prefix] = email.split("@");
-        // Replace dash (-) with slash (/) to match matric format
-        const emailPrefix = prefix.replace("-", "/").toUpperCase();
-        return emailPrefix === this.matricNumber.toUpperCase();
+        return validator.isEmail(email);
       },
       message: (props) =>
         `${props.value} is not a valid school email. Use your matric number with @students.unilorin.edu.ng`,
@@ -63,13 +60,13 @@ const userSchema = new mongoose.Schema({
   verificationTokenExpiresDate: Date,
 }, { timestamps: true });
 
-userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  this.confirmPassword = undefined;
-  next();
-});
+// userSchema.pre("save", async function (next) {
+//   if (this.isModified("password")) {
+//     this.password = await bcrypt.hash(this.password, 10);
+//   }
+//   this.confirmPassword = undefined;
+//   next();
+// });
 
 const User = mongoose.model("User", userSchema);
 export default User;

@@ -8,11 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { toast } from '@/components/ui/use-toast';
+// import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { Plus, MapPin, Calendar, MessageSquare } from 'lucide-react';
 import { authStore } from '../store/useAuthStore';
 import { useLostAndFound } from '../store/useLostAndFound';
+import toast from "react-hot-toast"
 
 const LostFound = () => {
   const { user } = authStore();
@@ -28,7 +29,8 @@ const LostFound = () => {
     description: '',
     location: '',
     contactInfo: currentUser?.email || '', // Use email
-    image: null
+    image: null,
+    status: ""
   });
 
   useEffect(() => {
@@ -41,10 +43,11 @@ const LostFound = () => {
 
 
   const handleSubmit = async () => {
-    const { title, description, location, contactInfo, image } = newItem;
+    const { title, description, location, contactInfo, image, status } = newItem;
 
+    console.log("Handling")
     if (!title || !description || !location || !contactInfo || !image) {
-      toast({ title: 'Missing Fields', description: 'Please fill in all fields', variant: 'destructive' });
+    toast.error("All Fiels are required")
       return;
     }
 
@@ -54,22 +57,20 @@ const LostFound = () => {
     formData.append('location', location);
     formData.append('contactInfo', contactInfo);
     formData.append('image', image);
+    formData.append("lostItem", status === "lost");
+    formData.append("foundItem", status === "found")
 
     try {
       await createLostAndFoundItem(formData);
-      toast({ title: 'Item Reported', description: 'Your lost/found item has been submitted.' });
-      addNotification({
-        title: 'Item Reported',
-        message: `"${title}" was successfully added to the Lost & Found list.`,
-        type: 'info'
-      });
+    
       setIsDialogOpen(false);
       setNewItem({
         title: '',
         description: '',
         location: '',
         contactInfo: currentUser?.email || '',
-        image: null
+        image: null,
+        status: ""
       });
 
     } catch (error) {
@@ -131,6 +132,13 @@ const LostFound = () => {
               <img src={item.imageUrl} alt={item.title} className="w-full h-48 object-cover rounded mb-4" />
               <h2 className="text-xl font-semibold">{item.title}</h2>
               <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+              {
+              item.lostItem ? <p className='text-red-600'>LostItem</p> : <p className='text-green-600'>Found Item{item?.foundItem}</p>
+              }
+
+              {/* {
+                item.foundItem && <p className='text-green-600'>Found Item</p>
+              } */}
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                 <MapPin size={14} />
                 {item.location}
@@ -166,7 +174,46 @@ const LostFound = () => {
             </div>
 
             <div className="space-y-4">
+
+
               <div>
+
+                <div className='flex justify-center space-x-6 py-2'>
+
+
+                  <div className='flex items-center gap-2 '>
+                    <Label className="text-lg text-green-600">
+                      Found Item
+                    </Label>
+                    <input
+                      type='radio'
+                      name='itemStatus'
+                      value="found"
+                      checked={newItem.status === "found"}
+                      onChange={(e) => setNewItem({ ...newItem, status: e.target.value })}
+                      className='w-4 h-4 bg-green-600 text-green-600'
+                    />
+                  </div>
+
+
+                  <div className='flex items-center gap-2 justify-center'>
+
+                    <Label className="text-lg text-red-600">
+                      Lost Item
+                    </Label>
+                    <input
+                      type='radio'
+                      name='itemStatus'
+                      value="lost"
+                      checked={newItem.status === "lost"}
+                      onChange={(e) => setNewItem({ ...newItem, status: e.target.value })}
+                      className='w-4 h-4'
+                    />
+                  </div>
+
+                </div>
+
+
                 <Label>Title</Label>
                 <Input
                   value={newItem.title}
@@ -191,8 +238,8 @@ const LostFound = () => {
                 <Label>Contact Info</Label>
                 <Input
                   value={newItem.contactInfo}
-                  readOnly
-                  className="bg-gray-100 cursor-not-allowed"
+              placeholder="Email or Phone Number"
+                  className="bg-gray-100 "
                   onChange={(e) => setNewItem({ ...newItem, contactInfo: e.target.value })}
                 />
               </div>

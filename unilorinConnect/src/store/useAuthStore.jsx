@@ -105,7 +105,8 @@ export const authStore = create((set,get) => ({
   logout:async(navigate) => {
     try {
        const response = await axiosInstance.get("/users/logout");
-       toast.success(response.data);
+      //  toast.success(response.data);
+      toast.success("You have been logged Out")
        get().disconnectSocket()
        console.log(response)
        navigate("/");

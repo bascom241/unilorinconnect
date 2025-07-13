@@ -55,14 +55,14 @@ const Profile = () => {
           <div><strong>Email:</strong> {user?.user?.email}</div>
           <div><strong>Matric Number:</strong> {user?.user?.matricNumber}</div>
           {/* <div><strong>Role:</strong> {role}</div> */}
-          <div>
+          {/* <div>
             <strong>Verified:</strong>{" "}
             {isVerified ? (
               <span className="text-green-600">✅ Yes</span>
             ) : (
               <span className="text-red-600">❌ No (Token: {user?.user?.verificationToken})</span>
             )}
-          </div>
+          </div> */}
           {/* <div><strong>Last Login:</strong> {new Date(lastLogin).toLocaleString()}</div>
           <div><strong>Account Created:</strong> {new Date(createdAt).toLocaleDateString()}</div> */}
         </div>

@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { Toaster } from 'react-hot-toast';
+import { useNavigate, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import Layout from "@/components/Layout";
@@ -26,56 +25,58 @@ import VerifyEmail from "@/pages/VerifyEmail";
 // Auth store
 import { authStore } from "./store/useAuthStore";
 
-const queryClient = new QueryClient();
-
 const App = () => {
-  const { checkAuth, checkingAuth, user, onlineUsers} = authStore();
+  const { checkAuth, checkingAuth, user } = authStore();
+  const navigate = useNavigate();
 
-
-  console.log(onlineUsers);
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
+  useEffect(() => {
+    if (!checkingAuth && !user) {
+      navigate("/login");
+    }
+  }, [checkingAuth, user, navigate]);
+
+
+  
   if (checkingAuth) {
     return (
       <div className="h-screen flex justify-center items-center">
+
         <Loader className="animate-spin w-8 h-8 text-uniblue-500" />
       </div>
     );
   }
 
-
-
+  if(!user){
+    navigate("/login")
+  }
 
   return (
-
-      <TooltipProvider>
-        <NotificationProvider>
-          <Toaster />
-       
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route element={<Layout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/lost-found" element={<LostFound />} />
-                <Route path="/verify-email" element={<VerifyEmail />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </NotificationProvider>
-      </TooltipProvider>
-
+    <TooltipProvider>
+      <NotificationProvider>
+        <Toaster />
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/lost-found" element={<LostFound />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </NotificationProvider>
+    </TooltipProvider>
   );
 };
 

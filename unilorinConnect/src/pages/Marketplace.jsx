@@ -266,23 +266,23 @@ const Marketplace = () => {
         </AnimatePresence>
       </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4  sm:px-6 lg:px-8 py-8">
         {/* Welcome Header */}
         <motion.div
-          className="mb-8 flex justify-between items-start"
+          className="mb-8 flex justify-between items-start sm:flex flex-col"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">
+          <div className='sm:flex flex-col'>
+            <h2 className="text-2xl  md:text-3xl font-bold">
               Campus Marketplace, <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{user?.fullName?.split(' ')[0] || 'Student'}</span>!
             </h2>
             <p className="text-gray-400 mt-2">Discover and trade with your campus community</p>
           </div>
           <Button
             onClick={() => setIsDialogOpen(true)}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+            className="bg-gradient-to-r  from-blue-600 to-indigo-600 sm:text-xl text-sm text-white"
           >
             <Plus className="h-5 w-5 mr-2" /> List an Item
           </Button>
@@ -290,7 +290,7 @@ const Marketplace = () => {
 
         {/* Stats Overview */}
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -321,7 +321,7 @@ const Marketplace = () => {
 
         {/* Featured Categories */}
         <motion.div
-          className="mb-8"
+          // className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -336,7 +336,7 @@ const Marketplace = () => {
             </CardHeader>
             <CardContent>
               <motion.div
-                className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 w-full"
                 variants={containerVariants}
               >
                 {featuredCategories.map((cat, index) => (
@@ -516,7 +516,7 @@ const Marketplace = () => {
                   onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-2 items-center gap-4">
                 <Label htmlFor="category" className="text-right">Category *</Label>
                 <Select value={newItem.category} onValueChange={(val) => setNewItem({ ...newItem, category: val })}>
                   <SelectTrigger className="col-span-3 bg-gray-700 border-gray-600 text-white">
@@ -529,7 +529,7 @@ const Marketplace = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4">
                 <Label htmlFor="condition" className="text-right">Condition</Label>
                 <Select value={newItem.condition} onValueChange={(val) => setNewItem({ ...newItem, condition: val })}>
                   <SelectTrigger className="col-span-3 bg-gray-700 border-gray-600 text-white">

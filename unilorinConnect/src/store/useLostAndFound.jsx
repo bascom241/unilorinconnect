@@ -17,6 +17,7 @@ export const useLostAndFound = create((set) => ({
   },
   createLostAndFoundItem: async (itemData) => {
     set({ creatingLostAndFoundItem: true });
+    console.log("sending Request")
     try {
       const response = await axiosInstance.post("/item-lost", itemData);
       set((state) => ({

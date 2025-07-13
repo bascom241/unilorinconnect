@@ -146,9 +146,7 @@ const Sidebar = () => {
             </Button>
           </li>
         </ul>
-      </nav>
-
-      {user && (
+         {user && (
         <div className="p-4 border-t border-sidebar-border">
           <Button 
             variant="ghost" 
@@ -163,6 +161,9 @@ const Sidebar = () => {
           </Button>
         </div>
       )}
+      </nav>
+
+     
     </div>
   );
 };
