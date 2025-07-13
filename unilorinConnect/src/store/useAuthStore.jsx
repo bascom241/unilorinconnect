@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import {io} from "socket.io-client"
 
 
-const BASE_URL = "http://localhost:9000"
+const BASE_URL = "https://unilorinconnectserver.onrender.com"
 export const authStore = create((set,get) => ({
   creatingUser: false,
   isUserCreated: false,
