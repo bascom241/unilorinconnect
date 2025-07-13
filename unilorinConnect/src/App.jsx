@@ -39,11 +39,11 @@ const App = () => {
   // }, [checkingAuth, user, navigate]);
 
 
-  
+
   if (!checkingAuth) {
-    return (
-     navigate("/login")
-    );
+
+    navigate("/login")
+    return
   }
 
   // if(!user){
@@ -67,7 +67,7 @@ const App = () => {
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/lost-found" element={<LostFound />} />
-            <Route path="/verify-email" element={<VerifyUser/>} />
+            <Route path="/verify-email" element={<VerifyUser />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
