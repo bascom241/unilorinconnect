@@ -16,7 +16,7 @@ const navigate = useNavigate();
 
         setOtp([...otp.map((data, idx)=> (idx === index ? e.target.value : data))])
 
-        
+
         const target = e.target;
         if(target.value && target.nextSibling) {
             target.nextSibling.focus();
