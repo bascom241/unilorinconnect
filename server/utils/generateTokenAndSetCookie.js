@@ -9,9 +9,9 @@ export const generateTokenAndSetCookie = (user, res) => {
     // Set the cookie with the token
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Set to true in production
+        // secure: process.env.NODE_ENV === 'production', // Set to true in production
         maxAge: 30 * 24 * 60 * 60 * 1000, 
-        sameSite: 'Strict'
+        // sameSite: 'Strict'
     });
 
     return token;
