@@ -36,7 +36,7 @@ useEffect(() => {
   if (!checkingAuth && !user) {
     navigate("/login");
   }
-}, [checkingAuth, user, navigate]);
+}, []);
 
 if (checkingAuth) {
   return (
