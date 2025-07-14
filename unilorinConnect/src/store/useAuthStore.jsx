@@ -1,20 +1,20 @@
 import { create } from 'zustand';
 import { axiosInstance } from "../lib/utils";
 import toast from "react-hot-toast";
-import {io} from "socket.io-client"
+import { io } from "socket.io-client"
 
 
 const BASE_URL = "https://unilorinconnectserver.onrender.com"
-export const authStore = create((set,get) => ({
+export const authStore = create((set, get) => ({
   creatingUser: false,
   isUserCreated: false,
   logginUser: false,
   isUserLoggedIn: false,
   user: null,
   checkingAuth: true, // Start as true so App shows loader until checked
-  socket:null,
-  onlineUsers:[],
-  verifyingEmail: false, 
+  socket: null,
+  onlineUsers: [],
+  verifyingEmail: false,
 
   register: async (userData) => {
     set({ creatingUser: true, isUserCreated: false });
@@ -40,17 +40,17 @@ export const authStore = create((set,get) => ({
     try {
       const response = await axiosInstance.post("/users/verify-email", { code });
       console.log(response);
-      set({verifyingEmail: false});
+      set({ verifyingEmail: false });
       return true;
     } catch (error) {
       console.log(error)
-      set({verifyingEmail: false})
+      set({ verifyingEmail: false })
       return false;
     }
   },
 
 
-  login: async (userData,navigate) => {
+  login: async (userData, navigate) => {
     set({ logginUser: true, isUserLoggedIn: false });
     console.log(userData)
     try {
@@ -74,7 +74,11 @@ export const authStore = create((set,get) => ({
   checkAuth: async () => {
     set({ checkingAuth: true });
     try {
-      const response = await axiosInstance.get("/users/check-auth");
+      const response = await axiosInstance.get("/users/check-auth", {}, {
+        headers: {
+          cookie: req.headers.get("cookie") || "",
+        }
+      });
       console.log("hi")
       get().connectSocket();
       set({
@@ -83,14 +87,14 @@ export const authStore = create((set,get) => ({
         checkingAuth: false,
       });
 
-    
+
       console.log("Auth check:", response.data.user);
     } catch (error) {
       console.error("Auth check error:", error);
       set({ user: null, isUserLoggedIn: false, checkingAuth: false });
     }
   },
-  userProfile: async () =>{
+  userProfile: async () => {
     try {
       const response = await axiosInstance.get("/users/profile");
       console.log("User profile response:", response.data);
@@ -102,38 +106,38 @@ export const authStore = create((set,get) => ({
     }
   },
 
-  logout:async(navigate) => {
+  logout: async (navigate) => {
     try {
-       const response = await axiosInstance.get("/users/logout");
+      const response = await axiosInstance.get("/users/logout");
       //  toast.success(response.data);
       toast.success("You have been logged Out")
-       get().disconnectSocket()
-       console.log(response)
-       navigate("/");
+      get().disconnectSocket()
+      console.log(response)
+      navigate("/");
     } catch (error) {
-        toast.error(error.message);
-        console.log(error)
+      toast.error(error.message);
+      console.log(error)
     }
   },
   connectSocket: () => {
 
-   const {user } = get();
-   if(!user || get().socket?.connected) return 
+    const { user } = get();
+    if (!user || get().socket?.connected) return
     const socket = io(BASE_URL, {
-      query:{
-        userId:user._id
+      query: {
+        userId: user._id
       }
     });
-    set({socket:socket})
+    set({ socket: socket })
     socket.connect();
 
     socket.on("getOnlineUsers", (userIds) => {
-      set({onlineUsers:userIds})
-    } )
+      set({ onlineUsers: userIds })
+    })
 
   },
   disconnectSocket: () => {
-    if(get().socket?.connected) get().socket.disconnect()
+    if (get().socket?.connected) get().socket.disconnect()
   }
 
 }));

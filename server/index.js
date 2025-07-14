@@ -14,8 +14,8 @@ import cookieParser from 'cookie-parser';
 dotenv.config();
 app.use(cors(
     {
-        origin: ["http://localhost:8080", "https://uilconnectapp.onrender.com"],
-        credentials: true, // Allow credentials (cookies) to be sent
+        origin: [ "https://uilconnectapp.onrender.com", "https://unilorinconnectclient.onrender.com"],
+        credentials: true,
     }
 ));
 
@@ -31,6 +31,8 @@ app.use("/api", useMessageRouter);
 app.use("/api", useResourcesRouter);
 app.use("/api", lostAndFoundRouter);
 connectDB();
+
+console.log("hi")
 
 const port = process.env.PORT || 5000;
 server.listen(port, () => {
