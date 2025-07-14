@@ -14,7 +14,7 @@ import cookieParser from 'cookie-parser';
 dotenv.config();
 app.use(cors(
     {
-        origin: [ "https://uilconnectapp.onrender.com", "https://unilorinconnectclient.onrender.com"],
+        origin: ["https://uilconnectapp.onrender.com","https://unilorinconnect-wjdv.vercel.app/", "https://unilorinconnectclient.onrender.com"],
         credentials: true,
     }
 ));
