@@ -33,7 +33,7 @@ useEffect(() => {
 }, [checkAuth]);
 
 useEffect(() => {
-  if (!checkingAuth && !user) {
+  if (checkingAuth && !user) {
     navigate("/login");
   }
 }, []);
