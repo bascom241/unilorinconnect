@@ -5,15 +5,15 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send } from 'lucide-react';
-import {useMessageStore} from '../store/useMessageStore';
+import useMessageStore from '../store/useMessageStore';
 import { authStore } from '../store/useAuthStore';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
 const Chat = () => {
 
-  const location = useLocation();
-  const { sellerId } = location.state || {};
+const location = useLocation();
+const { sellerId } = location.state || {};
 
 
   const { user, onlineUsers } = authStore();
@@ -25,29 +25,19 @@ const Chat = () => {
     loading,
     fetchUsers,
     fetchMessages,
-    sendMessage,
-    subscribeToMessages,
-    unsubscribeFromMessages
+    sendMessage
   } = useMessageStore();
 
   const [activeUserId, setActiveUserId] = useState(null);
   const [messageInput, setMessageInput] = useState('');
   const messagesEndRef = useRef(null);
 
-  if (!user) {
-    return <div className="text-center text-red-500 py-10">Please log in to access the chat.</div>;
-  }
-
-  if (!activeUser) {
-    return <div className="text-center text-gray-500 py-10">No users available to chat with.</div>;
-  }
-
 
   useEffect(() => {
-    if (location.state?.sellerName) {
-      toast.success(`Chat Initiated with ${location.state.sellerName}`);
-    }
-  }, []);
+  if (location.state?.sellerName) {
+    toast.success(`Chat Initiated with ${location.state.sellerName}`);
+  }
+}, []);
 
   // Fetch users on component mount
   useEffect(() => {
@@ -55,18 +45,18 @@ const Chat = () => {
   }, []);
 
   // Automatically select the first user
-  useEffect(() => {
-    if (users.length && !activeUserId) {
-      if (sellerId) {
-        const seller = users.find(u => u._id === sellerId);
-        if (seller) {
-          setActiveUserId(seller._id);
-        }
-      } else {
-        setActiveUserId(users[0]._id);
+useEffect(() => {
+  if (users.length && !activeUserId) {
+    if (sellerId) {
+      const seller = users.find(u => u._id === sellerId);
+      if (seller) {
+        setActiveUserId(seller._id);
       }
+    } else {
+      setActiveUserId(users[0]._id);
     }
-  }, [users, activeUserId, sellerId]);
+  }
+}, [users, activeUserId, sellerId]);
 
 
   // Fetch messages when the active user changes
@@ -101,20 +91,13 @@ const Chat = () => {
 
   const activeUser = users.find(u => u._id === activeUserId);
 
-  useEffect(() => {
-    const handleIncoming = (msg) => {
-      toast.success("New message received", msg)
-      console.log("New message received", msg);
-    };
+  if (!user) {
+    return <div className="text-center text-red-500 py-10">Please log in to access the chat.</div>;
+  }
 
-    subscribeToMessages(handleIncoming);
-
-    return () => {
-    unsubscribeFromMessages();
-    };
-  }, []);
-
-
+  if (!activeUser) {
+    return <div className="text-center text-gray-500 py-10">No users available to chat with.</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -138,7 +121,7 @@ const Chat = () => {
                     </AvatarFallback>
                   </Avatar>
 
-
+                 
 
                   <div className="ml-3">
                     <p className="font-medium">{u.fullName}</p>
