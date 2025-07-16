@@ -36,14 +36,12 @@ const getMessages = async (req,res) => {
         res.status(500).json({message: "Internal Error Found"})
     }
 }
-
 const sendMessage = async (req,res) => {
     try {
         const {text, image} = req.body;
         const {id:recieverId} = req.params;
         const senderId = req.user.userId;
 
-        console.log(text, image, senderId)
         let imageUrl;
 
         if(image){
@@ -55,18 +53,29 @@ const sendMessage = async (req,res) => {
             senderId,
             recieverId,
             text,
-            image:imageUrl
+            image: imageUrl
         });
+        
         await newMessage.save();
-        // todo Real Time Functionalities
 
+        // Real Time Functionalities
         const receiverSocketId = getReceiverSocketId(recieverId);
         if(receiverSocketId){
             io.to(receiverSocketId).emit("newMessage", newMessage);
         }
+
+        // Send proper response
+        res.status(201).json({
+            _id: newMessage._id,
+            senderId: newMessage.senderId,
+            recipientId: newMessage.recieverId,
+            text: newMessage.text,
+            image: newMessage.image,
+            createdAt: newMessage.createdAt
+        });
     } catch (error) {
         console.log(error)
-        res.status(500).json({message:error})
+        res.status(500).json({message: "Failed to send message"})
     }
 }
 

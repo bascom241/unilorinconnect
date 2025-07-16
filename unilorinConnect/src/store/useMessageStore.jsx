@@ -29,47 +29,48 @@ const useMessageStore = create((set) => ({
       set({ loading: false });
     }
   },
+sendMessage: async (receiverId, text, image) => {
+    const { user } = authStore.getState();
 
-  sendMessage: async (receiverId, text, image) => {
-    console.log(receiverId, text)
-    const { user } = authStore.getState(); // get sender
-
-    console.log(user)
     // Create optimistic message
     const tempMessage = {
-      _id: `temp-${Date.now()}`,
-      senderId: user._id,
-      recipientId: receiverId,
-      text,
-      createdAt: new Date().toISOString(),
-      pending: true
+        _id: `temp-${Date.now()}`,
+        senderId: user._id,
+        recipientId: receiverId,
+        text,
+        createdAt: new Date().toISOString(),
+        pending: true
     };
 
     // Push to UI immediately
     set((state) => ({
-      messages: [...state.messages, tempMessage],
+        messages: [...state.messages, tempMessage],
     }));
 
     try {
-      const response = await axiosInstance.post(`/message/${receiverId}`, { text, image });
+        // Fix the endpoint to match backend route
+        const response = await axiosInstance.post(`/message/${receiverId}`, { 
+            text, 
+            image 
+        });
 
-      // Replace temporary message with real one
-      set((state) => ({
-        messages: state.messages.map((msg) =>
-          msg._id === tempMessage._id ? response.data : msg
-        ),
-      }));
+        // Replace temporary message with real one
+        set((state) => ({
+            messages: state.messages.map((msg) =>
+                msg._id === tempMessage._id ? response.data : msg
+            ),
+        }));
 
-      return true;
+        return true;
     } catch (error) {
-      console.error('Error sending message:', error);
-      // Remove optimistic message if sending failed
-      set((state) => ({
-        messages: state.messages.filter((msg) => msg._id !== tempMessage._id),
-      }));
-      return false;
+        console.error('Error sending message:', error);
+        // Remove optimistic message if sending failed
+        set((state) => ({
+            messages: state.messages.filter((msg) => msg._id !== tempMessage._id),
+        }));
+        return false;
     }
-  },
+},
   subscribeToMessages: (callback) => {
     const {selectedUser} = get();
     if (!selectedUser) return;
