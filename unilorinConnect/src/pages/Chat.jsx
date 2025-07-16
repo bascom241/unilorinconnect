@@ -25,7 +25,9 @@ const Chat = () => {
     loading,
     fetchUsers,
     fetchMessages,
-    sendMessage
+    sendMessage,
+    subscribeToMessages,
+    unsubscribeFromMessages
   } = useMessageStore();
 
   const [activeUserId, setActiveUserId] = useState(null);
@@ -105,10 +107,10 @@ const Chat = () => {
       console.log("New message received", msg);
     };
 
-    useMessageStore.getState().subscribeToMessages(handleIncoming);
+    subscribeToMessages(handleIncoming);
 
     return () => {
-      useMessageStore.getState().unsubscribeFromMessages();
+    unsubscribeFromMessages();
     };
   }, []);
 
