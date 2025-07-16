@@ -4,6 +4,7 @@ import { axiosInstance } from '../lib/utils';
 
 export const useResources = create((set)=> ({
     resources: [],
+    addingResources:false,
     fetchResources: async () => {
         try {
             const response = await axiosInstance.get('/resources');
@@ -14,14 +15,17 @@ export const useResources = create((set)=> ({
         }
     },
     addResource: async (resourceData) => {
+        set({addingResources: true})
         try {
             const response = await axiosInstance.post('/resources', resourceData);
             set((state) => ({
                 resources: [...state.resources, response.data.resource]
             }));
+            set({addingResources: false})
             return true;
         } catch (error) {
             console.error("Error adding resource:", error);
+            set({addingResources:false})
             return false;
         }
     },

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { axiosInstance } from '../lib/utils';
 import { authStore } from './useAuthStore';
 
-const useMessageStore = create((set) => ({
+export const useMessageStore = create((set, get) => ({
   users: [],
   messages: [],
   loading: false,
@@ -23,7 +23,7 @@ const useMessageStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: response.data.messages, loading: false });
+      set({ messages: response.data.messages, loading: false, selectedUser: userId });
     } catch (error) {
       console.error('Error fetching messages:', error);
       set({ loading: false });
@@ -31,19 +31,17 @@ const useMessageStore = create((set) => ({
   },
 
   sendMessage: async (receiverId, text, image) => {
-    const { user } = authStore.getState(); // get sender
+    const { user } = authStore.getState();
 
-    // Create optimistic message
     const tempMessage = {
       _id: `temp-${Date.now()}`,
       senderId: user._id,
       recipientId: receiverId,
       text,
       createdAt: new Date().toISOString(),
-      pending: true
+      pending: true,
     };
 
-    // Push to UI immediately
     set((state) => ({
       messages: [...state.messages, tempMessage],
     }));
@@ -51,7 +49,6 @@ const useMessageStore = create((set) => ({
     try {
       const response = await axiosInstance.post(`/message/${receiverId}`, { text, image });
 
-      // Replace temporary message with real one
       set((state) => ({
         messages: state.messages.map((msg) =>
           msg._id === tempMessage._id ? response.data : msg
@@ -61,30 +58,30 @@ const useMessageStore = create((set) => ({
       return true;
     } catch (error) {
       console.error('Error sending message:', error);
-      // Remove optimistic message if sending failed
       set((state) => ({
         messages: state.messages.filter((msg) => msg._id !== tempMessage._id),
       }));
       return false;
     }
   },
+
   subscribeToMessages: (callback) => {
-    const {selectedUser} = get();
-    if (!selectedUser) return;
     const socket = authStore.getState().socket;
+    if (!socket) return;
+
     socket.on('newMessage', (message) => {
-      if (message.senderId === selectedUser._id || message.recipientId === selectedUser._id) {
-        set((state) => ({
-          messages: [...state.messages, message],
-        }));
-        callback(message);
+      const { selectedUser, messages } = get();
+
+      // Check if message is from or to the selected user
+      if (message.senderId === selectedUser || message.recipientId === selectedUser) {
+        set({ messages: [...messages, message] });
+        if (typeof callback === 'function') callback(message);
       }
     });
   },
-   unsubscribeFromMessages: () => {
+
+  unsubscribeFromMessages: () => {
     const socket = authStore.getState().socket;
-    socket.off('newMessage');
+    if (socket) socket.off('newMessage');
   },
 }));
-
-export default useMessageStore;

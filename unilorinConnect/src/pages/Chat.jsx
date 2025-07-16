@@ -12,8 +12,8 @@ import { toast } from 'react-hot-toast';
 
 const Chat = () => {
 
-const location = useLocation();
-const { sellerId } = location.state || {};
+  const location = useLocation();
+  const { sellerId } = location.state || {};
 
 
   const { user, onlineUsers } = authStore();
@@ -32,12 +32,20 @@ const { sellerId } = location.state || {};
   const [messageInput, setMessageInput] = useState('');
   const messagesEndRef = useRef(null);
 
+  if (!user) {
+    return <div className="text-center text-red-500 py-10">Please log in to access the chat.</div>;
+  }
+
+  if (!activeUser) {
+    return <div className="text-center text-gray-500 py-10">No users available to chat with.</div>;
+  }
+
 
   useEffect(() => {
-  if (location.state?.sellerName) {
-    toast.success(`Chat Initiated with ${location.state.sellerName}`);
-  }
-}, []);
+    if (location.state?.sellerName) {
+      toast.success(`Chat Initiated with ${location.state.sellerName}`);
+    }
+  }, []);
 
   // Fetch users on component mount
   useEffect(() => {
@@ -45,18 +53,18 @@ const { sellerId } = location.state || {};
   }, []);
 
   // Automatically select the first user
-useEffect(() => {
-  if (users.length && !activeUserId) {
-    if (sellerId) {
-      const seller = users.find(u => u._id === sellerId);
-      if (seller) {
-        setActiveUserId(seller._id);
+  useEffect(() => {
+    if (users.length && !activeUserId) {
+      if (sellerId) {
+        const seller = users.find(u => u._id === sellerId);
+        if (seller) {
+          setActiveUserId(seller._id);
+        }
+      } else {
+        setActiveUserId(users[0]._id);
       }
-    } else {
-      setActiveUserId(users[0]._id);
     }
-  }
-}, [users, activeUserId, sellerId]);
+  }, [users, activeUserId, sellerId]);
 
 
   // Fetch messages when the active user changes
@@ -91,13 +99,20 @@ useEffect(() => {
 
   const activeUser = users.find(u => u._id === activeUserId);
 
-  if (!user) {
-    return <div className="text-center text-red-500 py-10">Please log in to access the chat.</div>;
-  }
+  useEffect(() => {
+    const handleIncoming = (msg) => {
+      toast.success("New message received", msg)
+      console.log("New message received", msg);
+    };
 
-  if (!activeUser) {
-    return <div className="text-center text-gray-500 py-10">No users available to chat with.</div>;
-  }
+    useMessageStore.getState().subscribeToMessages(handleIncoming);
+
+    return () => {
+      useMessageStore.getState().unsubscribeFromMessages();
+    };
+  }, []);
+
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -121,7 +136,7 @@ useEffect(() => {
                     </AvatarFallback>
                   </Avatar>
 
-                 
+
 
                   <div className="ml-3">
                     <p className="font-medium">{u.fullName}</p>

@@ -8,10 +8,11 @@ import { toast } from 'react-hot-toast';
 import { FileText } from 'lucide-react';
 import { authStore } from '../store/useAuthStore';
 import { useResources } from '../store/useResources';
+import { Loader } from 'lucide-react';
 
 const Resources = () => {
   const { user } = authStore();
-  const { resources, fetchResources, addResource, fetchMyResources } = useResources();
+  const { resources, fetchResources, addResource, fetchMyResources,addingResources} = useResources();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +31,7 @@ const Resources = () => {
     category: '',
     courseCode: '',
     YearLevel: '',
+
   });
 
   useEffect(() => {
@@ -262,7 +264,9 @@ const Resources = () => {
               <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveResource}>Save Resource</Button>
+              <Button onClick={handleSaveResource} className="flex justify-center items-center gap-2">{
+                addingResources ? <Loader color='white' className=' animate-spin '/> : "Save Resource"
+              }</Button>
             </div>
           </div>
         </div>

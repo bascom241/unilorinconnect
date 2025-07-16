@@ -6,7 +6,6 @@ export const generateTokenAndSetCookie = (user, res) => {
         expiresIn: '30d',
     });
 
-    // Set the cookie with the token
  res.cookie('token', token, {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production', // only true in production
