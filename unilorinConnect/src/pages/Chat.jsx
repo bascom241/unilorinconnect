@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send } from 'lucide-react';
-import useMessageStore from '../store/useMessageStore';
+import {useMessageStore} from '../store/useMessageStore';
 import { authStore } from '../store/useAuthStore';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
