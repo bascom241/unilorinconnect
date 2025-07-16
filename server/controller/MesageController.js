@@ -43,6 +43,15 @@ const sendMessage = async (req,res) => {
         const {id:recieverId} = req.params;
         const senderId = req.user.userId;
 
+        if(!id){
+            return res.status(401).json("RecieverId not found")
+        }
+        if(!senderId){
+            return res.status(401).json("Sender Id not found")
+        }
+        if(!text){
+            return res.status(401).json("Text not found")
+        }
         let imageUrl;
 
         if(image){
