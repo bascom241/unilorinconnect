@@ -44,12 +44,15 @@ const sendMessage = async (req,res) => {
         const senderId = req.user.userId;
 
         if(!id){
+            console.log("RecieverId not found")
             return res.status(401).json("RecieverId not found")
         }
         if(!senderId){
+             console.log("Sender Id not found")
             return res.status(401).json("Sender Id not found")
         }
         if(!text){
+            console.log("Text not found")
             return res.status(401).json("Text not found")
         }
         let imageUrl;
@@ -73,7 +76,7 @@ const sendMessage = async (req,res) => {
             io.to(receiverSocketId).emit("newMessage", newMessage);
         }
     } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).json({message:error})
     }
 }
