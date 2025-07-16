@@ -39,8 +39,19 @@ const getMessages = async (req,res) => {
 const sendMessage = async (req,res) => {
     try {
         const {text, image} = req.body;
+        if(!text){
+            return res.status(401).json({message:"Text Not found"})
+        }
         const {id:recieverId} = req.params;
+
         const senderId = req.user.userId;
+
+        if(!id ){
+            return res.status(401).json({message:`${id} recieverid is not found o`})
+        }
+        if(!senderId){
+              return res.status(401).json({message:`${senderId} recieverid is not found o`})
+        }
 
         let imageUrl;
 
@@ -68,7 +79,7 @@ const sendMessage = async (req,res) => {
         res.status(201).json({
             _id: newMessage._id,
             senderId: newMessage.senderId,
-            recipientId: newMessage.recieverId,
+            recieverId: newMessage.recieverId,
             text: newMessage.text,
             image: newMessage.image,
             createdAt: newMessage.createdAt
