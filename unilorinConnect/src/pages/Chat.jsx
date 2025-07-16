@@ -74,6 +74,7 @@ useEffect(() => {
   const getInitials = (name) =>
     name ? name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
 
+    const activeUser = users.find(u => u._id === activeUserId);
   const handleSendMessage = async (e) => {
     e.preventDefault();
     const trimmed = messageInput.trim();
@@ -82,14 +83,13 @@ useEffect(() => {
     const textToSend = messageInput;
     setMessageInput(''); // Clear input before sending
 
-    const success = await sendMessage(activeUserId, textToSend, null);
+  const success = await sendMessage(activeUserId, textToSend);
     if (success) {
-      // Optional: ensure latest messages are fetched
       fetchMessages(activeUserId);
-    }
+    } console.log("Failed to send")
   };
 
-  const activeUser = users.find(u => u._id === activeUserId);
+
 
   if (!user) {
     return <div className="text-center text-red-500 py-10">Please log in to access the chat.</div>;

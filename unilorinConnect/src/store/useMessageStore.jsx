@@ -31,8 +31,10 @@ const useMessageStore = create((set) => ({
   },
 
   sendMessage: async (receiverId, text, image) => {
+    console.log(receiverId, text)
     const { user } = authStore.getState(); // get sender
 
+    console.log(user)
     // Create optimistic message
     const tempMessage = {
       _id: `temp-${Date.now()}`,
