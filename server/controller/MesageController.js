@@ -36,58 +36,59 @@ const getMessages = async (req,res) => {
         res.status(500).json({message: "Internal Error Found"})
     }
 }
-const sendMessage = async (req,res) => {
-    try {
-        const {text, image} = req.body;
-        if(!text){
-            return res.status(401).json({message:"Text Not found"})
-        }
-        const {id:recieverId} = req.params;
+const sendMessage = async (req, res) => {
+  try {
+    const { text, image } = req.body;
+    const { id: recieverId } = req.params;
+    const senderId = req.user.userId;
 
-        const senderId = req.user.userId;
-
-        if(!id ){
-            return res.status(401).json({message:`${id} recieverid is not found o`})
-        }
-        if(!senderId){
-              return res.status(401).json({message:`${senderId} recieverid is not found o`})
-        }
-
-        let imageUrl;
-
-        if(image){
-            const uploadResponse = await cloudinary.uploader.upload(image);
-            imageUrl = uploadResponse.secure_url
-        }
-
-        const newMessage = new Message({
-            senderId,
-            recieverId,
-            text,
-            image: imageUrl
-        });
-        
-        await newMessage.save();
-
-        // Real Time Functionalities
-        const receiverSocketId = getReceiverSocketId(recieverId);
-        if(receiverSocketId){
-            io.to(receiverSocketId).emit("newMessage", newMessage);
-        }
-
-        // Send proper response
-        res.status(201).json({
-            _id: newMessage._id,
-            senderId: newMessage.senderId,
-            recieverId: newMessage.recieverId,
-            text: newMessage.text,
-            image: newMessage.image,
-            createdAt: newMessage.createdAt
-        });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({message: "Failed to send message"})
+    if (!text) {
+      return res.status(401).json({ message: "Text not found" });
     }
-}
+
+    if (!recieverId) {
+      return res.status(401).json({ message: "Receiver ID not found" });
+    }
+
+    if (!senderId) {
+      return res.status(401).json({ message: "Sender ID not found" });
+    }
+
+    let imageUrl;
+
+    if (image) {
+      const uploadResponse = await cloudinary.uploader.upload(image);
+      imageUrl = uploadResponse.secure_url;
+    }
+
+    const newMessage = new Message({
+      senderId,
+      recieverId,
+      text,
+      image: imageUrl
+    });
+
+    await newMessage.save();
+
+    // Real-time: emit to receiver
+    const receiverSocketId = getReceiverSocketId(recieverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+
+    res.status(201).json({
+      _id: newMessage._id,
+      senderId: newMessage.senderId,
+      recieverId: newMessage.recieverId,
+      text: newMessage.text,
+      image: newMessage.image,
+      createdAt: newMessage.createdAt
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to send message" });
+  }
+};
 
 export {getAllUsers, getMessages, sendMessage}

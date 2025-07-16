@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server , {
     cors: {
-        origin: "https://uilconnectapp.onrender.com",
+        origin: "https://uilconnectapp.onrender.com", 
        credentials: true,
     }
 });
