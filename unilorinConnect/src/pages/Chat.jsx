@@ -12,8 +12,8 @@ import { toast } from 'react-hot-toast';
 
 const Chat = () => {
 
-const location = useLocation();
-const { sellerId } = location.state || {};
+  const location = useLocation();
+  const { sellerId } = location.state || {};
 
 
   const { user, onlineUsers } = authStore();
@@ -34,10 +34,10 @@ const { sellerId } = location.state || {};
 
 
   useEffect(() => {
-  if (location.state?.sellerName) {
-    toast.success(`Chat Initiated with ${location.state.sellerName}`);
-  }
-}, []);
+    if (location.state?.sellerName) {
+      toast.success(`Chat Initiated with ${location.state.sellerName}`);
+    }
+  }, []);
 
   // Fetch users on component mount
   useEffect(() => {
@@ -45,18 +45,18 @@ const { sellerId } = location.state || {};
   }, []);
 
   // Automatically select the first user
-useEffect(() => {
-  if (users.length && !activeUserId) {
-    if (sellerId) {
-      const seller = users.find(u => u._id === sellerId);
-      if (seller) {
-        setActiveUserId(seller._id);
+  useEffect(() => {
+    if (users.length && !activeUserId) {
+      if (sellerId) {
+        const seller = users.find(u => u._id === sellerId);
+        if (seller) {
+          setActiveUserId(seller._id);
+        }
+      } else {
+        setActiveUserId(users[0]._id);
       }
-    } else {
-      setActiveUserId(users[0]._id);
     }
-  }
-}, [users, activeUserId, sellerId]);
+  }, [users, activeUserId, sellerId]);
 
 
   // Fetch messages when the active user changes
@@ -74,7 +74,7 @@ useEffect(() => {
   const getInitials = (name) =>
     name ? name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
 
-    const activeUser = users.find(u => u._id === activeUserId);
+  const activeUser = users.find(u => u._id === activeUserId);
   const handleSendMessage = async (e) => {
     e.preventDefault();
     const trimmed = messageInput.trim();
@@ -83,7 +83,7 @@ useEffect(() => {
     const textToSend = messageInput;
     setMessageInput(''); // Clear input before sending
 
-  const success = await sendMessage(activeUserId, textToSend);
+    const success = await sendMessage(activeUserId, textToSend);
     if (success) {
       fetchMessages(activeUserId);
     } console.log("Failed to send")
@@ -121,7 +121,7 @@ useEffect(() => {
                     </AvatarFallback>
                   </Avatar>
 
-                 
+
 
                   <div className="ml-3">
                     <p className="font-medium">{u.fullName}</p>
@@ -155,13 +155,14 @@ useEffect(() => {
             <div className="space-y-4">
               {messages.map((msg) => {
                 const isCurrentUser = msg.senderId === user._id;
+
                 return (
                   <div
                     key={msg._id}
-                    className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                    className={`w-full flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`px-4 py-2 rounded-lg max-w-md ${isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-100'
+                      className={`px-4 py-2 rounded-lg max-w-md break-words ${isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-100'
                         }`}
                     >
                       <p>{msg.text}</p>
@@ -171,7 +172,7 @@ useEffect(() => {
                       >
                         {new Date(msg.createdAt).toLocaleTimeString([], {
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </p>
                     </div>
@@ -180,6 +181,7 @@ useEffect(() => {
               })}
               <div ref={messagesEndRef} />
             </div>
+
           </ScrollArea>
 
           {/* Input */}
