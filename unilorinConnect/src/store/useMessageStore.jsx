@@ -29,14 +29,9 @@ const useMessageStore = create((set) => ({
       set({ loading: false });
     }
   },
-  sendMessage: async (receiverId, text, image) => {
-    const { user } = authStore.getState();
 
-    if (user) {
-      console.log(user)
-    } else {
-      console.log("User does not exist")
-    }
+  sendMessage: async (receiverId, text, image) => {
+    const { user } = authStore.getState(); // get sender
 
     // Create optimistic message
     const tempMessage = {
@@ -54,11 +49,7 @@ const useMessageStore = create((set) => ({
     }));
 
     try {
-      // Fix the endpoint to match backend route
-      const response = await axiosInstance.post(`/message/${receiverId}`, {
-        text,
-        image
-      });
+      const response = await axiosInstance.post(`/message/${receiverId}`, { text, image });
 
       // Replace temporary message with real one
       set((state) => ({
@@ -78,7 +69,7 @@ const useMessageStore = create((set) => ({
     }
   },
   subscribeToMessages: (callback) => {
-    const { selectedUser } = get();
+    const {selectedUser} = get();
     if (!selectedUser) return;
     const socket = authStore.getState().socket;
     socket.on('newMessage', (message) => {
@@ -90,7 +81,7 @@ const useMessageStore = create((set) => ({
       }
     });
   },
-  unsubscribeFromMessages: () => {
+   unsubscribeFromMessages: () => {
     const socket = authStore.getState().socket;
     socket.off('newMessage');
   },
