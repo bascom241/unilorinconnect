@@ -79,7 +79,7 @@ const Landing = () => {
               <div className="absolute -top-6 -left-6 w-64 h-64 bg-blue-100 rounded-2xl -z-10"></div>
               <div className="absolute -bottom-6 -right-6 w-64 h-64 bg-indigo-100 rounded-2xl -z-10"></div>
               <img 
-                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" 
+                src="https://media.istockphoto.com/id/92259124/photo/laptop-computer-with-books-pen-and-yellow-legal-pad.jpg?s=1024x1024&w=is&k=20&c=tou6Bs5Q3BMx4op_geafzHCXlL_EWtMjjSTas-6idhE=" 
                 alt="University students"
                 className="rounded-2xl shadow-xl relative z-10"
               />
